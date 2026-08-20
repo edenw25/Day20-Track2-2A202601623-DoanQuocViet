@@ -53,6 +53,14 @@ hỏng theo chiều ngược lại. `errors="replace"` chịu được cả hai,
 (`"required -- replace this line"`, các placeholder) đều là ASCII nên không bị ảnh hưởng.
 Tôi cũng convert các `benchmarks/*.md` sang UTF-8 để GitHub render đúng.
 
+Sửa xong lỗi encoding thì lộ ra **lỗi thứ hai, cũng chỉ xảy ra trên Windows**: verify báo
+mọi file trong thư mục con là "NOT committed" dù đã commit, trong khi `hardware.json` ở
+thư mục gốc lại pass. Nguyên nhân là `is_committed()` so
+`str(path.relative_to(repo_root()))` — trên Windows cho ra `modelsctive.json` — với tập
+hợp lấy từ `git ls-files`, vốn **luôn dùng dấu gạch chéo xuôi** (`models/active.json`).
+File ở thư mục gốc không có dấu phân cách nên vô tình khớp; mọi file khác thì không. Tôi
+đổi sang `.as_posix()`. Sau hai sửa đổi này `make verify` exit 0.
+
 ---
 
 ## 2. Đo lường  *(rubric 3, 4, 5 — 20 điểm)*
